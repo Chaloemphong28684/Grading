@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบตัดเกรด</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            -moz-appearance: textfield;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 12px 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 18px;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+                padding: 15px;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+
+            input {
+                padding: 6px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>ระบบตัดเกรด</h2>
+        <table>
+            <tr>
+                <th>หัวข้อ</th>
+                <th>คะแนนเต็ม</th>
+                <th>คะแนนที่ได้</th>
+            </tr>
+            <tbody id="scoreTable"></tbody>
+        </table>
+        <button onclick="addRow()">เพิ่มแถว</button>
+        <button onclick="clearScores()">ล้างคะแนนที่กรอก</button>
+        <button onclick="clearAll()" style="background-color: #dc3545;">ล้างทั้งหมด</button>
+        <div class="result">คะแนนรวม: <span id="totalScore">0</span></div>
+        <div class="result">เกรด: <span id="grade">-</span></div>
+    </div>
+    <script>
+        function addRow() {
+            let table = document.getElementById('scoreTable');
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" placeholder="หัวข้อ"></td>
+                <td><input type="number" min="0" value="0" onchange="calculateGrade()"></td>
+                <td><input type="number" min="0" value="0" onchange="calculateGrade()"></td>
+            `;
+            table.appendChild(row);
+        }
+
+        function calculateGrade() {
+            let rows = document.querySelectorAll('#scoreTable tr');
+            let totalScore = 0, totalMax = 0;
+
+            rows.forEach(row => {
+                let maxScore = parseFloat(row.cells[1].querySelector('input').value) || 0;
+                let score = parseFloat(row.cells[2].querySelector('input').value) || 0;
+                totalScore += score;
+                totalMax += maxScore;
+            });
+
+            let percentage = (totalScore / totalMax) * 100;
+            let grade = "F";
+            if (percentage >= 80) grade = "A";
+            else if (percentage >= 75) grade = "B+";
+            else if (percentage >= 70) grade = "B";
+            else if (percentage >= 65) grade = "C+";
+            else if (percentage >= 60) grade = "C";
+            else if (percentage >= 55) grade = "D+";
+            else if (percentage >= 50) grade = "D";
+            else if (percentage <= 49) grade = "F";
+
+            document.getElementById('totalScore').innerText = totalScore;
+            document.getElementById('grade').innerText = grade;
+        }
+
+        function clearScores() {
+            document.querySelectorAll('#scoreTable tr').forEach(row => {
+                row.cells[2].querySelector('input').value = '';
+            });
+            calculateGrade();
+        }
+
+        function clearAll() {
+            document.getElementById('scoreTable').innerHTML = '';
+            for (let i = 0; i < 8; i++) addRow();
+            document.getElementById('totalScore').innerText = '0';
+            document.getElementById('grade').innerText = '-';
+        }
+
+        window.onload = function () {
+            for (let i = 0; i < 8; i++) addRow();
+        };
+    </script>
+</body>
+
+</html>
